@@ -18,6 +18,6 @@ app.use(cookieParser());
 
 const userRouter = require('../src/routes/user.route');
 
-app.use('/', userRouter);
+app.use('/user', userRouter);
 
 module.exports = app;

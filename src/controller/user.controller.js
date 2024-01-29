@@ -1,6 +1,24 @@
 const User = require('../model/user.model');
 const { uploadonCloudinary } = require('../utils/cloudinary');
 
+const generateAccessAndRefreshTokens = async (userId) => {
+  try {
+    const user = await User.findById(userId);
+    //Generate Access and Refresh Token
+    const accessToken = existUser.generateAccessToken();
+    const refreshToken = existUser.generateRefreshToken();
+
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
+
+    return { accessToken, refreshToken };
+  } catch (error) {
+    res.status(500).json({
+      error: 'Something went wrong while generating refresh and access token',
+    });
+  }
+};
+
 const registerUser = async (req, res) => {
   // get user details from frontend
   const { username, fullname, email, password } = req.body;
@@ -24,7 +42,7 @@ const registerUser = async (req, res) => {
   // check for images, check for avatar
   // console.log(req.files);
   const avatarLocalPath = req.files?.Avatar?.[0]?.path;
-  const coverImageLocalPath = req.files?.coverImage[0]?.path;
+  const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
   if (!avatarLocalPath)
     res.status(400).json({ error: 'Avatar path is required' });
   // upload them to cloudinary, avatar
@@ -52,10 +70,45 @@ const registerUser = async (req, res) => {
   res.status(200).send(user);
 };
 
-function userLogin(req, res) {
-  res.json({
-    msg: 'Hello from backend Project',
+async function userLogin(req, res) {
+  //Get Data from frontend
+  const { username, email, password } = req.body;
+  //Find the user
+  if (!username || !password) {
+    res.status(400).json({ error: 'username or email is required' });
+  }
+
+  const existUser = await User.findOne({
+    $or: [{ username }, { email }],
   });
+  //Password Check
+  if (!existUser) {
+    return res.status(404).json({ error: "User doesn't Exist" });
+  }
+  const checkpassword = await existUser.isPasswordCorrect(password);
+  if (!checkpassword) {
+    return res.status(401).json({ error: 'Invalid User Credentials' });
+  }
+
+  const { accessToken, refreshToken } = awaitgenerateAccessAndRefreshTokens(
+    user._id
+  );
+  //Send through Cookies
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  res
+    .status(200)
+    .cookie('accessToken', accessToken, options)
+    .cookie('refreshToken', refreshToken, options)
+    .json({
+      user: accessToken,
+      refreshToken,
+      msg: 'You are successfully LogedIn',
+    });
 }
 
 module.exports = { userLogin, registerUser };

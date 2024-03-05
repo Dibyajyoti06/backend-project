@@ -19,6 +19,6 @@ router.post(
   registerUser
 );
 router.post('/login', userLogin);
-router.post('/logout', verifyJWT, logoutUser);
+router.get('/logout', verifyJWT, logoutUser);
 
 module.exports = router;

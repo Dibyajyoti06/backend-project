@@ -362,6 +362,76 @@ async function getWatchHistory(req, res) {
   });
 }
 
+async function getUserChannelProfile(req, res) {
+  const { username } = req.params;
+  if (!username?.trim) {
+    res.status(400).json({
+      msg: 'username is missing',
+    });
+  }
+  const channel = await User.aggregate([
+    {
+      $match: {
+        username: username?.toLowerCase(),
+      },
+    },
+    {
+      $lookup: {
+        from: 'subscriptions',
+        localField: '_id',
+        foreignField: 'channel',
+        as: 'subscribers',
+      },
+    },
+    {
+      $lookup: {
+        from: 'subscriptions',
+        localField: '_id',
+        foreignField: 'channel',
+        as: 'subscribedTo',
+      },
+    },
+    {
+      $addFields: {
+        subscribersCount: {
+          $size: '$subscrib ers',
+        },
+        channelSubscribedToCount: {
+          $size: '$subscribedTo',
+        },
+        isSubscribed: {
+          $cond: {
+            if: { $in: [req.user?._id, '$subscribers.subscriber'] },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        fullname: 1,
+        username: 1,
+        subscribersCount: 1,
+        channelSubscribedToCount: 1,
+        isSubscribed: 1,
+        avatar: 1,
+        coverImage: 1,
+        email: 1,
+      },
+    },
+  ]);
+  if (!channel?.length) {
+    res.status(404).json({
+      msg: 'channeld does not exists',
+    });
+  }
+  return res.status(200).json({
+    channel: channel[0],
+    msg: 'User channel fetched successfully',
+  });
+}
+
 module.exports = {
   userLogin,
   registerUser,
@@ -373,4 +443,5 @@ module.exports = {
   updateUserAvatar,
   updateUserCoverImage,
   getWatchHistory,
+  getUserChannelProfile,
 };

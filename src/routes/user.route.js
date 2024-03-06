@@ -4,6 +4,13 @@ const {
   registerUser,
   logoutUser,
   RefreshAccessToken,
+  changePassword,
+  getCurrentUser,
+  updateAccountDetails,
+  updateUserAvatar,
+  updateUserCoverImage,
+  getWatchHistory,
+  getUserChannelProfile,
 } = require('../controller/user.controller');
 const router = express.Router();
 const { upload } = require('../middleware/multer.middleware');
@@ -20,6 +27,18 @@ router.post(
   registerUser
 );
 router.post('/login', userLogin);
+router.post('/change-password', verifyJWT, changePassword);
 router.get('/logout', verifyJWT, logoutUser);
 router.get('/refresh-token', RefreshAccessToken);
+router.get('/current-user', verifyJWT, getCurrentUser);
+router.get('/channel/:username', verifyJWT, getUserChannelProfile);
+router.get('/history', verifyJWT, getWatchHistory);
+router.patch('/update-account', verifyJWT, updateAccountDetails);
+router.patch('/avatar', verifyJWT, upload.single('avatar'), updateUserAvatar);
+router.patch(
+  '/coverImage',
+  verifyJWTupload.single('coverImage'),
+  updateUserCoverImage
+);
+
 router.module.exports = router;

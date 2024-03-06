@@ -1,3 +1,4 @@
+const { default: mongoose } = require('mongoose');
 const User = require('../model/user.model');
 const { uploadonCloudinary } = require('../utils/cloudinary');
 const jwt = require('jsonwebtoken');
@@ -279,6 +280,8 @@ async function updateUserAvatar(req, res) {
     user,
     msg: 'Avatar Image updated Successfully',
   });
+  //After that we delete previous Avatar...
+  //Code.....
 }
 
 async function updateUserCoverImage(req, res) {
@@ -308,6 +311,55 @@ async function updateUserCoverImage(req, res) {
     user,
     msg: 'coverImage updated Successfully',
   });
+  //After that we delete previous coverImage...
+  //Code.....
+}
+
+async function getWatchHistory(req, res) {
+  const user = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(req.user._id),
+      },
+    },
+    {
+      $lookup: {
+        from: 'videos',
+        localField: 'watchHistory',
+        foreignField: '_id',
+        as: 'watchHistory',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'owner',
+              foreignField: '_id',
+              as: 'owner',
+              pipeline: [
+                {
+                  $project: {
+                    fullname: 1,
+                    username: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              owner: { $first: '$owner' },
+            },
+          },
+        ],
+      },
+    },
+  ]);
+
+  return res.status(200).json({
+    user: user[0].watchHistory,
+    msg: 'Watch history fetched successfully',
+  });
 }
 
 module.exports = {
@@ -320,4 +372,5 @@ module.exports = {
   updateAccountDetails,
   updateUserAvatar,
   updateUserCoverImage,
+  getWatchHistory,
 };

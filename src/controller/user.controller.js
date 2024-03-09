@@ -55,7 +55,7 @@ const registerUser = async (req, res) => {
   // upload them to cloudinary, avatar
   const avatar = await uploadonCloudinary(avatarLocalPath);
   const coverImage = await uploadonCloudinary(coverImageLocalPath);
-  if (!avatar) res.status(400).json({ error: 'Avatar file is required' });
+  if (!avatar) res.status(409).json({ error: 'Avatar file is required' });
 
   // create user object - create entry in db
   const user = await User.create({
@@ -66,18 +66,16 @@ const registerUser = async (req, res) => {
     Avatar: avatar.url,
     coverImage: coverImage?.url || '',
   });
-  // delete statements are removing the "password" and "refreshToken" fields from the user object before sending it as a response.
-  delete user.password;
-  delete user.refreshToken;
-
   // remove password and refresh token field from response
+  const createdUser = user.toObject();
+  delete createdUser.password;
   // check for user creation
   if (!user)
     res.status(400).json({
       error: 'user not found!!',
     });
   // return res
-  res.status(201).send(user);
+  res.status(201).send(createdUser);
 };
 
 async function userLogin(req, res) {
@@ -394,7 +392,7 @@ async function getUserChannelProfile(req, res) {
     {
       $addFields: {
         subscribersCount: {
-          $size: '$subscrib ers',
+          $size: '$subscribers',
         },
         channelSubscribedToCount: {
           $size: '$subscribedTo',

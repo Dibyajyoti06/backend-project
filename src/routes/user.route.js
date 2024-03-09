@@ -37,8 +37,9 @@ router.patch('/update-account', verifyJWT, updateAccountDetails);
 router.patch('/avatar', verifyJWT, upload.single('avatar'), updateUserAvatar);
 router.patch(
   '/coverImage',
-  verifyJWTupload.single('coverImage'),
+  verifyJWT,
+  upload.single('coverImage'),
   updateUserCoverImage
 );
 
-router.module.exports = router;
+module.exports = router;

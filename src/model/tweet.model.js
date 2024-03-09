@@ -1,6 +1,6 @@
-const { mongoose, Schema } = require('mongoose');
+const { default: mongoose, Schema } = require('mongoose');
 
-const tweetSchema = new mongoose.Schema(
+const tweetSchema = new Schema(
   {
     owner: {
       type: Schema.Types.ObjectId,

@@ -4,7 +4,10 @@ const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
 const videoSchema = new mongoose.Schema(
   {
     videofile: {
-      type: String,
+      type: {
+        url: String,
+        public_id: String,
+      },
       required: true,
     },
     thumbnail: {
@@ -43,4 +46,4 @@ videoSchema.plugin(aggregatePaginate);
 
 const Video = mongoose.model('Video', videoSchema);
 
-module.exports = { Video };
+module.exports = Video;

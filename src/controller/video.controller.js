@@ -11,6 +11,55 @@ const {
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
   //TODO: get all videos based on query, sort, pagination
+
+  let pipeline = [];
+
+  if (query) {
+    pipeline.push({
+      $search: {
+        $index: 'search-video',
+        $text: {
+          query: query,
+          path: ['title', 'description'],
+        },
+      },
+    });
+  }
+
+  if (!mongoose.isValidObjectId(userId)) {
+    res.status(400).json({
+      msg: 'Invalid userId',
+    });
+  }
+
+  pipeline.push({
+    $match: {
+      owner: new mongoose.Types.ObjectId(userId),
+    },
+  });
+  if (sortBy && sortType) {
+    pipeline.push({
+      $sort: {
+        [sortBy]: sortType === 'asc' ? 1 : -1,
+      },
+    });
+  } else {
+    pipeline.push({
+      $sort: { createdAt: -1 },
+    });
+  }
+
+  const options = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+  };
+
+  const video = await Video.aggregatePaginate(videoAggregate, options);
+
+  return res.status(200).json({
+    video,
+    msg: 'Videos fetched successfully',
+  });
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
@@ -70,6 +119,104 @@ const publishAVideo = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   //TODO: get video by id
+
+  if (!mongoose.isValidObjectId(videoId)) {
+    res.status(400).json({
+      msg: 'Invalid videoId',
+    });
+  }
+
+  const video = Video.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(videoId),
+      },
+    },
+    {
+      $lookup: {
+        from: 'likes',
+        localField: '_id',
+        foreignField: 'video',
+        as: 'likes',
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'owner',
+        foreignField: '_id',
+        as: 'owner',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'subscriptions',
+              localField: '_id',
+              foreignField: 'channel',
+              as: 'subscribers',
+            },
+          },
+          {
+            $addFields: {
+              subscribersCount: {
+                $size: '$subscribers',
+              },
+              isSubscribed: {
+                $cond: {
+                  if: {
+                    $in: [req.user?._id, '$subscribers.subscriber'],
+                  },
+                  then: true,
+                  else: false,
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              username: 1,
+              avatar: 1,
+              subscribersCount: 1,
+              isSubscribed: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $addFields: {
+        likesCount: {
+          $size: '$likes',
+        },
+        owner: {
+          $first: '$owner',
+        },
+        isLiked: {
+          $cond: {
+            if: {
+              $in: [req.user?._id, '$likes.likedBy'],
+            },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        videoFile: 1,
+        title: 1,
+        description: 1,
+        views: 1,
+        createdAt: 1,
+        isPublished: 1,
+        duration: 1,
+        comments: 1,
+        owner: 1,
+        likesCount: 1,
+        isLiked: 1,
+      },
+    },
+  ]);
 });
 
 const updateVideo = asyncHandler(async (req, res) => {

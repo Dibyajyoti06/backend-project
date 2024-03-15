@@ -330,6 +330,46 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
+  if (!mongoose.isValidObjectId(videoId)) {
+    res.status(400).json({
+      msg: 'Invalid videoId',
+    });
+  }
+
+  const video = await Video.findById(videoId);
+
+  if (!video) {
+    res.status(400).json({
+      msg: 'Video not found',
+    });
+  }
+
+  if (video?.owner.toString() !== req.user?._id.toString()) {
+    res.status(400).json({
+      msg: "You can't edit this video as you are not the owner",
+    });
+  }
+
+  const toggledVideoPublish = await Video.findByIdAndUpdate(
+    videoId,
+    {
+      $set: {
+        isPublished: !video?.isPublished,
+      },
+    },
+    { new: true }
+  );
+
+  if (!toggledVideoPublish) {
+    res.status(500).json({
+      msg: 'Failed to toggle video publish status',
+    });
+  }
+
+  return res.status(200).json({
+    isPublished: toggledVideoPublish.isPublished,
+    msg: 'publish toggled successfully',
+  });
 });
 
 module.exports = {

@@ -4,6 +4,31 @@ const Subscription = require('../model/subscription.model');
 const toggleSubscription = asyncHandler(async (req, res) => {
   const { channelId } = req.params;
   // TODO: toggle subscription
+  if (!mongoose.isValidObjectId(channelId)) {
+    res.status(400).json({
+      msg: 'Invalid channelId!',
+    });
+  }
+  const isSubscribed = await Subscription.findOne({
+    subscriber: req.user?._id,
+    channel: channelId,
+  });
+  if (isSubscribed) {
+    await Subscription.findByIdAndDelete(isSubscribed?._id);
+    res.status(200).json({
+      subscribed: false,
+      msg: 'unsubscribed successfully',
+    });
+  }
+
+  await Subscription.create({
+    subscriber: req.user?._id,
+    channel: channelId,
+  });
+  res.status(200).json({
+    subscribed: true,
+    msg: 'subscribed successfully...',
+  });
 });
 
 // controller to return subscriber list of a channel
@@ -34,15 +59,42 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
               from: 'subscriptions',
               localField: '_id',
               foreignField: 'channel',
-              as: 'subscribedToSubscriber',
+              as: 'subscribedTo',
             },
           },
           {
             $addFields: {
-              subs,
+              subscribedTo: {
+                $cond: {
+                  if: {
+                    $in: [channelId, '$subscibedTo.subscriber'],
+                  },
+                  then: true,
+                  else: false,
+                },
+              },
+              subscriberCount: {
+                $size: '$subscriber',
+              },
             },
           },
         ],
+      },
+    },
+    {
+      $unwind: '$subscriber',
+    },
+    {
+      $project: {
+        _id: 0,
+        subscriber: {
+          _id: 1,
+          username: 1,
+          fullName: 1,
+          avatar: 1,
+          subscribedTo: 1,
+          subscribersCount: 1,
+        },
       },
     },
   ]);
@@ -71,9 +123,37 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
         as: 'subscribedChannel',
         pipeline: [
           {
-            $lookup: {},
+            $lookup: {
+              from: 'videos',
+              localField: '_id',
+              foreignField: 'owner',
+              as: 'videos',
+            },
+          },
+          {
+            $addFields: {
+              latestVideo: {
+                $last: '$videos',
+              },
+            },
           },
         ],
+      },
+    },
+    {
+      $unwind: '$subscribedChannel',
+    },
+    {
+      $project: {
+        _id: 0,
+        subscriber: {
+          _id: 1,
+          username: 1,
+          fullName: 1,
+          avatar: 1,
+          subscribedToSubscriber: 1,
+          subscribersCount: 1,
+        },
       },
     },
   ]);

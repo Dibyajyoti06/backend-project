@@ -3,10 +3,7 @@ const Video = require('../model/video.model.js');
 const Like = require('../model/like.model.js');
 const Comment = require('../model/comment.controller.js');
 const User = require('../model/user.model.js');
-const {
-  uploadOnCloudinary,
-  deleteonCloudinary,
-} = require('../utils/cloudinary.js');
+const { uploadOnCloudinary } = require('../utils/cloudinary.js');
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;

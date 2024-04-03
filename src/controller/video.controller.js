@@ -3,7 +3,7 @@ const Video = require('../model/video.model.js');
 const Like = require('../model/like.model.js');
 const Comment = require('../model/comment.controller.js');
 const User = require('../model/user.model.js');
-const { uploadOnCloudinary } = require('../utils/cloudinary.js');
+const { uploadonCloudinary } = require('../utils/cloudinary.js');
 
 const getAllVideos = async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
@@ -68,9 +68,9 @@ const publishAVideo = async (req, res) => {
       msg: 'All fields are required',
     });
   }
-
   const videoFileLocalPath = req.files?.videoFile[0]?.path;
-  const thumbnailLocalPath = req.file?.thumbnail[0]?.path;
+  const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
+
   if (!videoFileLocalPath) {
     res.status(400).json({
       msg: 'videoFileLocalPath is required',
@@ -83,8 +83,8 @@ const publishAVideo = async (req, res) => {
     });
   }
 
-  const videoFile = await uploadOnCloudinary(videoFileLocalPath);
-  const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+  const videoFile = await uploadonCloudinary(videoFileLocalPath);
+  const thumbnail = await uploadonCloudinary(thumbnailLocalPath);
 
   if (!videoFile) {
     res.status(400).json({ msg: 'Video file not found' });
@@ -220,7 +220,7 @@ const updateVideo = async (req, res) => {
   const { videoId } = req.params;
   //TODO: update video details like title, description, thumbnail
   const { title, description } = req.body;
-  const thumbnailLocalPath = req.file?.thumbnail[0]?.path;
+  const thumbnailLocalPath = req.file?.path;
 
   if (!mongoose.isValidObjectId(videoId)) {
     res.status(400).json({
@@ -240,7 +240,7 @@ const updateVideo = async (req, res) => {
     });
   }
 
-  const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+  const thumbnail = await uploadonCloudinary(thumbnailLocalPath);
   if (!thumbnail) {
     res.status(400).json({
       msg: 'thumbnail not found',

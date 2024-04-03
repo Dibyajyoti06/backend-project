@@ -25,7 +25,7 @@ const createTweet = async (req, res) => {
   });
 };
 
-const updateTweet = asyncHandler(async (req, res) => {
+const updateTweet = async (req, res) => {
   //TODO: update tweet
   const { content } = req.body;
   const { tweet_id } = req.params;
@@ -75,9 +75,9 @@ const updateTweet = asyncHandler(async (req, res) => {
     newTweet,
     msg: 'Tweet updated successfully',
   });
-});
+};
 
-const deleteTweet = asyncHandler(async (req, res) => {
+const deleteTweet = async (req, res) => {
   //TODO: delete tweet
   const { tweetId } = req.params;
   if (!isValidObjectId(tweetId)) {
@@ -105,9 +105,9 @@ const deleteTweet = asyncHandler(async (req, res) => {
     tweet_id,
     msg: 'tweet deleted successfully',
   });
-});
+};
 
-const getUserTweets = asyncHandler(async (req, res) => {
+const getUserTweets = async (req, res) => {
   // TODO: get user tweets
   const { userId } = req.params;
   if (!mongoose.isValidObjectId(userId)) {
@@ -189,7 +189,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
     tweets,
     msg: 'Tweets fetched successfully',
   });
-});
+};
 
 module.exports = {
   createTweet,

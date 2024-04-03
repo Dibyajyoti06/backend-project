@@ -7,7 +7,7 @@ const {
 } = require('../controller/likes.controller.js');
 const { verifyJWT } = require('../middleware/auth.middleware.js');
 
-const router = Router();
+const router = express.Router();
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 
 router.route('/toggle/v/:videoId').post(toggleVideoLike);

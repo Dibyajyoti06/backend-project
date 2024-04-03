@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Subscription = require('../model/subscription.model');
 
-const toggleSubscription = asyncHandler(async (req, res) => {
+const toggleSubscription = async (req, res) => {
   const { channelId } = req.params;
   // TODO: toggle subscription
   if (!mongoose.isValidObjectId(channelId)) {
@@ -29,10 +29,10 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     subscribed: true,
     msg: 'subscribed successfully...',
   });
-});
+};
 
 // controller to return subscriber list of a channel
-const getUserChannelSubscribers = asyncHandler(async (req, res) => {
+const getUserChannelSubscribers = async (req, res) => {
   const { channelId } = req.params;
 
   if (!mongoose.isValidObjectId(channelId)) {
@@ -103,10 +103,10 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     subscribers,
     msg: 'Subscribers fetched successfully...',
   });
-});
+};
 
 // controller to return channel list to which user has subscribed
-const getSubscribedChannels = asyncHandler(async (req, res) => {
+const getSubscribedChannels = async (req, res) => {
   const { subscriberId } = req.params;
 
   const subscribedChannel = await Subscription.aggregate([
@@ -162,7 +162,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     subscribedChannel,
     msg: 'subscribed channel fetched successfully...',
   });
-});
+};
 
 module.exports = {
   toggleSubscription,

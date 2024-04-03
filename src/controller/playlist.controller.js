@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Playlist = require('../model/playlist.model');
 
-const createPlaylist = asyncHandler(async (req, res) => {
+const createPlaylist = async (req, res) => {
   const { name, description } = req.body;
 
   //TODO: create playlist
@@ -27,9 +27,9 @@ const createPlaylist = asyncHandler(async (req, res) => {
     playlist,
     msg: 'Playlist created successfully',
   });
-});
+};
 
-const getUserPlaylists = asyncHandler(async (req, res) => {
+const getUserPlaylists = async (req, res) => {
   const { userId } = req.params;
   //TODO: get user playlists
   if (!mongoose.isValidObjectId(userId)) {
@@ -77,9 +77,9 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
     playlists: playlists[0],
     msg: 'User playlists fetched successfully',
   });
-});
+};
 
-const getPlaylistById = asyncHandler(async (req, res) => {
+const getPlaylistById = async (req, res) => {
   const { playlistId } = req.params;
   //TODO: get playlist by id
   if (!mongoose.isValidObjectId(playlistId)) {
@@ -166,9 +166,9 @@ const getPlaylistById = asyncHandler(async (req, res) => {
     playlistVideos: playlistVideos[0],
     msg: 'playlist fetched successfully',
   });
-});
+};
 
-const addVideoToPlaylist = asyncHandler(async (req, res) => {
+const addVideoToPlaylist = async (req, res) => {
   const { playlistId, videoId } = req.params;
   if (
     !mongoose.isValidObjectId(playlistId) ||
@@ -223,9 +223,9 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
     updatePlaylist,
     msg: 'Added video to playlist successfully',
   });
-});
+};
 
-const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
+const removeVideoFromPlaylist = async (req, res) => {
   const { playlistId, videoId } = req.params;
   // TODO: remove video from playlist
   if (
@@ -273,9 +273,9 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     updatedPlaylist,
     msg: 'video removed from the playlist successfully...',
   });
-});
+};
 
-const deletePlaylist = asyncHandler(async (req, res) => {
+const deletePlaylist = async (req, res) => {
   const { playlistId } = req.params;
   // TODO: delete playlist
   if (!mongoose.isValidObjectId(playlistId)) {
@@ -301,9 +301,9 @@ const deletePlaylist = asyncHandler(async (req, res) => {
   return res.status(200).json({
     msg: 'playlist deleted successfully',
   });
-});
+};
 
-const updatePlaylist = asyncHandler(async (req, res) => {
+const updatePlaylist = async (req, res) => {
   const { playlistId } = req.params;
   const { name, description } = req.body;
   //TODO: update playlist
@@ -351,7 +351,7 @@ const updatePlaylist = asyncHandler(async (req, res) => {
     updatedPlaylist,
     msg: 'playlist updated successfully',
   });
-});
+};
 
 module.exports = {
   createPlaylist,

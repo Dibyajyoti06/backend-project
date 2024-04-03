@@ -2,14 +2,14 @@ const mongoose = require('mongoose');
 const Comment = require('../model/comment.controller.js');
 const Like = require('../model/like.model.js');
 
-const getVideoComments = asyncHandler(async (req, res) => {
+const getVideoComments = async (req, res) => {
   //TODO: get all comments for a video
   const { videoId } = req.params;
   const { page = 1, limit = 10 } = req.query;
 
-  if (!mongoose.isValidObjectId(commentId)) {
+  if (!mongoose.isValidObjectId(videoId)) {
     res.status(400).json({
-      msg: 'Invalid comment Id',
+      msg: 'Invalid videoId',
     });
   }
   const video = await Video.findById(videoId);
@@ -89,9 +89,9 @@ const getVideoComments = asyncHandler(async (req, res) => {
     comments,
     msg: 'Comments fetched successfully',
   });
-});
+};
 
-const addComment = asyncHandler(async (req, res) => {
+const addComment = async (req, res) => {
   // TODO: add a comment to a video
   const content = req.body;
   const videoId = req.params;
@@ -124,9 +124,9 @@ const addComment = asyncHandler(async (req, res) => {
     createdComment,
     msg: 'Comment added successfully',
   });
-});
+};
 
-const updateComment = asyncHandler(async (req, res) => {
+const updateComment = async (req, res) => {
   // TODO: update a comment
   const { commentId } = req.params;
 
@@ -178,9 +178,9 @@ const updateComment = asyncHandler(async (req, res) => {
     updatedComment,
     msg: 'Comment edited successfully',
   });
-});
+};
 
-const deleteComment = asyncHandler(async (req, res) => {
+const deleteComment = async (req, res) => {
   // TODO: delete a comment
   const { commentId } = req.params;
 
@@ -207,6 +207,6 @@ const deleteComment = asyncHandler(async (req, res) => {
     videoId,
     msg: 'Comment deleted successfully',
   });
-});
+};
 
-export { getVideoComments, addComment, updateComment, deleteComment };
+module.exports = { getVideoComments, addComment, updateComment, deleteComment };

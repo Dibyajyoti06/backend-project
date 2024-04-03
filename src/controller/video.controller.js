@@ -5,7 +5,7 @@ const Comment = require('../model/comment.controller.js');
 const User = require('../model/user.model.js');
 const { uploadOnCloudinary } = require('../utils/cloudinary.js');
 
-const getAllVideos = asyncHandler(async (req, res) => {
+const getAllVideos = async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
   //TODO: get all videos based on query, sort, pagination
 
@@ -57,9 +57,9 @@ const getAllVideos = asyncHandler(async (req, res) => {
     video,
     msg: 'Videos fetched successfully',
   });
-});
+};
 
-const publishAVideo = asyncHandler(async (req, res) => {
+const publishAVideo = async (req, res) => {
   const { title, description } = req.body;
   // TODO: get video, upload to cloudinary, create video
 
@@ -111,9 +111,9 @@ const publishAVideo = asyncHandler(async (req, res) => {
     video,
     msg: 'Video uploaded successfully',
   });
-});
+};
 
-const getVideoById = asyncHandler(async (req, res) => {
+const getVideoById = async (req, res) => {
   const { videoId } = req.params;
   //TODO: get video by id
 
@@ -214,9 +214,9 @@ const getVideoById = asyncHandler(async (req, res) => {
       },
     },
   ]);
-});
+};
 
-const updateVideo = asyncHandler(async (req, res) => {
+const updateVideo = async (req, res) => {
   const { videoId } = req.params;
   //TODO: update video details like title, description, thumbnail
   const { title, description } = req.body;
@@ -279,9 +279,9 @@ const updateVideo = asyncHandler(async (req, res) => {
     updatedVideo,
     msg: 'Video updated successfully',
   });
-});
+};
 
-const deleteVideo = asyncHandler(async (req, res) => {
+const deleteVideo = async (req, res) => {
   const { videoId } = req.params;
   //TODO: delete video
   if (!mongoose.isValidObjectId(videoId)) {
@@ -323,9 +323,9 @@ const deleteVideo = asyncHandler(async (req, res) => {
   });
 
   return res.status(200).json({ msg: 'Video deleted successfully' });
-});
+};
 
-const togglePublishStatus = asyncHandler(async (req, res) => {
+const togglePublishStatus = async (req, res) => {
   const { videoId } = req.params;
   if (!mongoose.isValidObjectId(videoId)) {
     res.status(400).json({
@@ -367,7 +367,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     isPublished: toggledVideoPublish.isPublished,
     msg: 'publish toggled successfully',
   });
-});
+};
 
 module.exports = {
   getAllVideos,

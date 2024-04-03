@@ -1,4 +1,4 @@
-const { Router } = require('express');
+const express = require('express');
 const {
   addComment,
   deleteComment,
@@ -7,7 +7,7 @@ const {
 } = require('../controller/comment.controller.js');
 const { verifyJWT } = require('../middleware/auth.middleware.js');
 
-const router = Router();
+const router = express.Router();
 
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 

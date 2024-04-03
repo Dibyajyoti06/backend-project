@@ -8,9 +8,9 @@ const {
   removeVideoFromPlaylist,
   updatePlaylist,
 } = require('../controller/playlist.controller');
-const verifyJWT = require('../middleware/auth.middleware');
+const { verifyJWT } = require('../middleware/auth.middleware');
 
-const router = Router();
+const router = express.Router();
 
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 

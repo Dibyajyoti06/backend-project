@@ -1,4 +1,4 @@
-const Router = require('express');
+const express = require('express');
 const {
   deleteVideo,
   getAllVideos,
@@ -7,10 +7,10 @@ const {
   togglePublishStatus,
   updateVideo,
 } = require('../controller/video.controller.js');
-const verifyJWT = require('../middleware/auth.middleware.js');
-const upload = require('../middleware/multer.middleware.js');
+const { verifyJWT } = require('../middleware/auth.middleware.js');
+const { upload } = require('../middleware/multer.middleware.js');
 
-const router = Router();
+const router = express.Router();
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 
 router

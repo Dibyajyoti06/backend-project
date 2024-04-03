@@ -14,7 +14,7 @@ const {
 } = require('../controller/user.controller');
 const router = express.Router();
 const { upload } = require('../middleware/multer.middleware');
-const verifyJWT = require('../middleware/auth.middleware');
+const { verifyJWT } = require('../middleware/auth.middleware');
 // router.post('/register', registerUser);
 // router.get('/login', userLogin);
 

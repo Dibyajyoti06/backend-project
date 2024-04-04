@@ -26,7 +26,7 @@ const toggleVideoLike = async (req, res) => {
 
   await Like.create({
     video: videoId,
-    likedBy: req.usere?._id,
+    likedBy: req.user?._id,
   });
   return res.status(200).json({
     isLiked: true,
@@ -58,7 +58,7 @@ const toggleCommentLike = async (req, res) => {
 
   await Like.create({
     comment: commentId,
-    likedBy: req.usere?._id,
+    likedBy: req.user?._id,
   });
   return res.status(200).json({
     isLiked: true,
@@ -90,7 +90,7 @@ const toggleTweetLike = async (req, res) => {
 
   await Like.create({
     tweet: tweetId,
-    likedBy: req.usere?._id,
+    likedBy: req.user?._id,
   });
   return res.status(200).json({
     isLiked: true,
@@ -157,7 +157,6 @@ const getLikedVideos = async (req, res) => {
       },
     },
   ]);
-
   return res.status(200).json({
     likedVideosAggregate,
     msg: 'liked videos fetched successfully!...',

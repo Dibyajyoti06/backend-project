@@ -137,6 +137,7 @@ const getPlaylistById = async (req, res) => {
     },
     {
       $project: {
+        _id: 0,
         name: 1,
         description: 1,
         createdAt: 1,
@@ -155,8 +156,8 @@ const getPlaylistById = async (req, res) => {
         },
         owner: {
           username: 1,
-          fullName: 1,
-          avatar: 1,
+          fullname: 1,
+          Avatar: 1,
         },
       },
     },

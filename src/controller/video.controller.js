@@ -215,6 +215,30 @@ const getVideoById = async (req, res) => {
       },
     },
   ]);
+
+  if (!video) {
+    res.status(500).json({
+      msg: 'failed to fetch video',
+    });
+  }
+
+  // increment views if video fetched successfully
+  await Video.findByIdAndUpdate(videoId, {
+    $inc: {
+      views: 1,
+    },
+  });
+  // add this video to user watch history
+  await User.findByIdAndUpdate(req.user?._id, {
+    $addToSet: {
+      watchHistory: videoId,
+    },
+  });
+
+  return res.status(200).json({
+    video,
+    msg: 'video fetched successfully',
+  });
 };
 
 const updateVideo = async (req, res) => {

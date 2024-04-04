@@ -15,7 +15,7 @@ const toggleSubscription = async (req, res) => {
   });
   if (isSubscribed) {
     await Subscription.findByIdAndDelete(isSubscribed?._id);
-    res.status(200).json({
+    return res.status(200).json({
       subscribed: false,
       msg: 'unsubscribed successfully',
     });
@@ -41,7 +41,7 @@ const getUserChannelSubscribers = async (req, res) => {
     });
   }
 
-  const subscribers = Subscription.aggregate([
+  const subscribersDetails = await Subscription.aggregate([
     {
       $match: {
         channel: new mongoose.Types.ObjectId(channelId),
@@ -50,9 +50,9 @@ const getUserChannelSubscribers = async (req, res) => {
     {
       $lookup: {
         from: 'users',
-        localField: 'subscribers',
+        localField: 'subscriber',
         foreignField: '_id',
-        as: 'subscriber',
+        as: 'subscribers',
         pipeline: [
           {
             $lookup: {
@@ -64,34 +64,40 @@ const getUserChannelSubscribers = async (req, res) => {
           },
           {
             $addFields: {
-              subscribedTo: {
-                $cond: {
-                  if: {
-                    $in: [channelId, '$subscibedTo.subscriber'],
+              subscribedTo:
+                // '$subscribedTo.subscriber',
+                {
+                  $cond: {
+                    if: {
+                      $in: [
+                        new mongoose.Types.ObjectId(channelId),
+                        '$subscribedTo.subscriber',
+                      ],
+                    },
+                    then: true,
+                    else: false,
                   },
-                  then: true,
-                  else: false,
                 },
-              },
-              subscriberCount: {
-                $size: '$subscriber',
-              },
             },
           },
         ],
       },
     },
     {
-      $unwind: '$subscriber',
+      $addFields: {
+        subscriberCount: {
+          $size: '$subscribers',
+        },
+      },
     },
     {
       $project: {
-        _id: 0,
-        subscriber: {
+        _id: 1,
+        subscribers: {
           _id: 1,
           username: 1,
-          fullName: 1,
-          avatar: 1,
+          fullname: 1,
+          Avatar: 1,
           subscribedTo: 1,
           subscribersCount: 1,
         },
@@ -100,7 +106,7 @@ const getUserChannelSubscribers = async (req, res) => {
   ]);
 
   return res.status(200).json({
-    subscribers,
+    subscribersDetails,
     msg: 'Subscribers fetched successfully...',
   });
 };
@@ -141,18 +147,24 @@ const getSubscribedChannels = async (req, res) => {
       },
     },
     {
-      $unwind: '$subscribedChannel',
-    },
-    {
       $project: {
         _id: 0,
-        subscriber: {
+        subscribedChannel: {
           _id: 1,
           username: 1,
-          fullName: 1,
-          avatar: 1,
-          subscribedToSubscriber: 1,
-          subscribersCount: 1,
+          fullname: 1,
+          Avatar: 1,
+          latestVideo: {
+            _id: 1,
+            videofile: 1,
+            thumbnail: 1,
+            owner: 1,
+            title: 1,
+            description: 1,
+            duration: 1,
+            createdAt: 1,
+            views: 1,
+          },
         },
       },
     },

@@ -59,6 +59,7 @@ const getChannelStats = async (req, res) => {
       },
     },
   ]);
+  console.log(video);
 
   const channelStats = {
     totalSubscribers: totalSubscribers[0]?.subscribersCount || 0,
@@ -95,7 +96,7 @@ const getChannelVideos = async (req, res) => {
           $dateToParts: { date: '$createdAt' },
         },
         likesCount: {
-          $size: 'likes',
+          $size: '$likes',
         },
       },
     },
@@ -107,7 +108,7 @@ const getChannelVideos = async (req, res) => {
     {
       $project: {
         _id: 1,
-        videoFile: 1,
+        videofile: 1,
         thumbnail: 1,
         title: 1,
         description: 1,

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Comment = require('../model/comment.controller.js');
 const Like = require('../model/like.model.js');
+const Video = require('../model/video.model.js');
 
 const getVideoComments = async (req, res) => {
   //TODO: get all comments for a video
@@ -22,7 +23,7 @@ const getVideoComments = async (req, res) => {
   const commentsAggregate = Comment.aggregate([
     {
       $match: {
-        _id: new mongoose.Types.ObjectId(videoId),
+        video: new mongoose.Types.ObjectId(videoId),
       },
     },
     {
@@ -82,19 +83,18 @@ const getVideoComments = async (req, res) => {
     page: parseInt(page, 10),
     limit: parseInt(limit, 10),
   };
-
   const comments = await Comment.aggregatePaginate(commentsAggregate, options);
 
   return res.status(200).json({
-    comments,
+    comments: comments.docs[0],
     msg: 'Comments fetched successfully',
   });
 };
 
 const addComment = async (req, res) => {
   // TODO: add a comment to a video
-  const content = req.body;
-  const videoId = req.params;
+  const { content } = req.body;
+  const { videoId } = req.params;
 
   if (!mongoose.isValidObjectId(videoId)) {
     res.status(400).json({
@@ -204,7 +204,6 @@ const deleteComment = async (req, res) => {
   });
 
   return res.status(200).json({
-    videoId,
     msg: 'Comment deleted successfully',
   });
 };

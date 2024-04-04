@@ -413,7 +413,7 @@ async function getUserChannelProfile(req, res) {
         subscribersCount: 1,
         channelSubscribedToCount: 1,
         isSubscribed: 1,
-        avatar: 1,
+        Avatar: 1,
         coverImage: 1,
         email: 1,
       },

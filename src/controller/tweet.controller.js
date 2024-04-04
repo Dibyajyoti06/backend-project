@@ -28,7 +28,7 @@ const createTweet = async (req, res) => {
 const updateTweet = async (req, res) => {
   //TODO: update tweet
   const { content } = req.body;
-  const { tweet_id } = req.params;
+  const { tweetId } = req.params;
 
   if (!content) {
     res.status(400).json({
@@ -36,29 +36,25 @@ const updateTweet = async (req, res) => {
     });
   }
 
-  if (!isValidObjectId(tweetId)) {
+  if (!mongoose.isValidObjectId(tweetId)) {
     res.status(400).json({
       msg: 'Invalid tweetId',
     });
   }
 
-  const tweet = Tweet.findById(tweet_id);
+  const tweet = await Tweet.findById(tweetId);
   if (!tweet) {
     res.status(404).json({
       msg: 'Tweet not found',
     });
   }
-
   if (tweet?.owner.toString() !== req.user?._id.toString()) {
     res.status(400).json({
       msg: 'only owner can edit their tweet',
     });
   }
-
-  const newTweet = Tweet.findByIdAndUpdate(
-    {
-      tweet_id,
-    },
+  const newTweet = await Tweet.findByIdAndUpdate(
+    tweetId,
     {
       $set: {
         content,
@@ -66,6 +62,7 @@ const updateTweet = async (req, res) => {
     },
     { new: true }
   );
+  // console.log(newTweet);
   if (!newTweet) {
     res.status(500).json({
       msg: 'Failed to edit tweet please try again',
@@ -80,13 +77,13 @@ const updateTweet = async (req, res) => {
 const deleteTweet = async (req, res) => {
   //TODO: delete tweet
   const { tweetId } = req.params;
-  if (!isValidObjectId(tweetId)) {
+  if (!mongoose.isValidObjectId(tweetId)) {
     res.status(400).json({
       msg: 'Invalid tweetId',
     });
   }
 
-  const tweet = Tweet.findById(tweet_id);
+  const tweet = await Tweet.findById(tweetId);
   if (!tweet) {
     res.status(404).json({
       msg: 'Tweet not found',
@@ -99,10 +96,10 @@ const deleteTweet = async (req, res) => {
     });
   }
 
-  await Tweet.findByIdAndDelete(tweet_id);
+  await Tweet.findByIdAndDelete(tweetId);
 
   return res.status(200).json({
-    tweet_id,
+    tweetId,
     msg: 'tweet deleted successfully',
   });
 };
@@ -118,7 +115,7 @@ const getUserTweets = async (req, res) => {
   const tweets = await Tweet.aggregate([
     {
       $match: {
-        owner: userId,
+        owner: new mongoose.Types.ObjectId(userId),
       },
     },
     {

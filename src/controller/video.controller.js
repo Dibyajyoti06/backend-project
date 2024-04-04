@@ -50,6 +50,7 @@ const getAllVideos = async (req, res) => {
     page: parseInt(page, 10),
     limit: parseInt(limit, 10),
   };
+  const videoAggregate = await Video.aggregate(pipeline);
 
   const video = await Video.aggregatePaginate(videoAggregate, options);
 

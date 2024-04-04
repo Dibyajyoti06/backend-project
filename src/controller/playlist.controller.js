@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Playlist = require('../model/playlist.model');
+const Video = require('../model/video.model');
 
 const createPlaylist = async (req, res) => {
   const { name, description } = req.body;
@@ -41,7 +42,7 @@ const getUserPlaylists = async (req, res) => {
   const playlists = await Playlist.aggregate([
     {
       $match: {
-        _id: new mongoose.Types.ObjectId(userId),
+        owner: new mongoose.Types.ObjectId(userId),
       },
     },
     {
@@ -72,9 +73,8 @@ const getUserPlaylists = async (req, res) => {
       },
     },
   ]);
-
   return res.status(200).json({
-    playlists: playlists[0],
+    playlists,
     msg: 'User playlists fetched successfully',
   });
 };
@@ -163,7 +163,7 @@ const getPlaylistById = async (req, res) => {
   ]);
 
   return res.status(200).json({
-    playlistVideos: playlistVideos[0],
+    playlistVideos,
     msg: 'playlist fetched successfully',
   });
 };
@@ -193,25 +193,16 @@ const addVideoToPlaylist = async (req, res) => {
     });
   }
 
-  if (playlist.owner?.toString() !== req.user?._id.toString()) {
+  if (playlist?.owner?.toString() !== req.user?._id.toString()) {
     res.status(400).json({
       msg: 'only owner can add video to their playlist',
     });
   }
-
-  const updatedPlaylist = await Playlist.aggregate([
-    {
-      playlistId,
-    },
-    {
-      $addToSet: {
-        videos: videoId,
-      },
-    },
-    {
-      new: true,
-    },
-  ]);
+  const updatedPlaylist = await Playlist.findOneAndUpdate(
+    new mongoose.Types.ObjectId(playlistId),
+    { $addToSet: { videos: videoId } },
+    { new: true }
+  );
 
   if (!updatedPlaylist) {
     res.status(500).json({
@@ -260,7 +251,7 @@ const removeVideoFromPlaylist = async (req, res) => {
     });
   }
   const updatedPlaylist = await Playlist.findByIdAndUpdate(
-    playlistId,
+    new mongoose.Types.ObjectId(playlistId),
     {
       $pull: {
         videos: videoId,
@@ -334,9 +325,7 @@ const updatePlaylist = async (req, res) => {
   }
 
   const updatedPlaylist = await Playlist.findByIdAndUpdate(
-    {
-      playlistId,
-    },
+    playlistId,
     {
       $set: {
         name,

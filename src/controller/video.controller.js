@@ -124,7 +124,7 @@ const getVideoById = async (req, res) => {
     });
   }
 
-  const video = Video.aggregate([
+  const video = await Video.aggregate([
     {
       $match: {
         _id: new mongoose.Types.ObjectId(videoId),
@@ -201,7 +201,7 @@ const getVideoById = async (req, res) => {
     },
     {
       $project: {
-        videoFile: 1,
+        videofile: 1,
         title: 1,
         description: 1,
         views: 1,
@@ -231,7 +231,7 @@ const getVideoById = async (req, res) => {
   // add this video to user watch history
   await User.findByIdAndUpdate(req.user?._id, {
     $addToSet: {
-      watchHistory: videoId,
+      watchHistory: new mongoose.Types.ObjectId(videoId),
     },
   });
 
